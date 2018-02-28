@@ -1,6 +1,8 @@
 from tweets import Tweets
+from parser import Parser
 
-bitcoin = Tweets(type="hash", tag='#Bitcoin', count=5, since="2018-01-01")
+bitcoin = Tweets(type="hash", tag='#Bitcoin', 
+                    count=5, since="2018-01-01")
 #tweets = bitcoin.get()
 tweets = bitcoin.getText()
 
@@ -8,8 +10,13 @@ tweets = bitcoin.getText()
 # print (type(tweets))
 # print (tweets[0])
 
+
+## Pass in each tweet string to the parser and print
 for t in tweets:
-    #print (dir(t))
-    print (t)
+    tweet_str = Parser.run(t)
+    print (tweet_str)
+
+        
+
     
     
