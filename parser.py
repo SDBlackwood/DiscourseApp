@@ -1,5 +1,6 @@
 #!/usr/bin/python3.5.2
 import pandas as pd
+import re
 
 #~ Technical parsing outwith semantic analysis
 
@@ -24,11 +25,6 @@ class Parser():
     def strip_re(word_array):
         stripped_array = [x for x in word_array if x.startswith('RT') == False]
         return stripped_array
-
-    @staticmethod
-    def convert_returns(word_array):
-        stripped_array = [x for x in word_array if x.startswith('RT') == False]
-        return stripped_array
     
     @staticmethod
     def strip_dead(word_array):
@@ -37,8 +33,15 @@ class Parser():
 
     @staticmethod
     def strip_amp(word_array):
-        stripped_array = [x for x in word_array if x != ('&amp') or x !=('/')]
+        stripped_array = [x for x in word_array if x.startswith('&amp') == False]
         return stripped_array
+
+    @staticmethod
+    def convert_returns(word_array):
+        pattern = re.compile(r'\n')
+        stripped_array = [x.replace('\n', '') for x in word_array if pattern.findall(x)]
+        return stripped_array
+
 
     @staticmethod
     def tokenize(tweet_str):
@@ -53,5 +56,6 @@ class Parser():
         tweet_str = Parser.strip_re(tweet_str)
         tweet_str = Parser.strip_dead(tweet_str)
         tweet_str = Parser.strip_amp(tweet_str)
+        #tweet_str = Parser.convert_returns(tweet_str)
         return tweet_str
 

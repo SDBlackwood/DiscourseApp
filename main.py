@@ -14,6 +14,10 @@ tweets = bitcoin.getText()
 ## Pass in each tweet string to the parser and print
 for t in tweets:
     tweet_str = Parser.run(t)
+
+    # Here we will print out the list of cleaned tweets
+    # We need to feed this into the 
+
     print (tweet_str)
 
         
