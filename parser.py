@@ -42,6 +42,14 @@ class Parser():
         stripped_array = [x.replace('\n', '') for x in word_array if pattern.findall(x)]
         return stripped_array
 
+    @staticmethod
+    def toString(word_array):
+        string = str()
+        for x in word_array:
+            string += x +" "
+        string = string[:-1]
+        return string
+
 
     @staticmethod
     def tokenize(tweet_str):
