@@ -1,5 +1,5 @@
 #!/usr/bin/python3.5.2
-import pandas as pd
+#import pandas as pd
 import re
 
 #~ Technical parsing outwith semantic analysis
@@ -9,6 +9,8 @@ class Parser():
     @staticmethod
     def strip_https(word_array):
         stripped_array = [x for x in word_array if x.startswith('https') == False]
+        pattern = re.compile(r'https://')
+        stripped_array = [x for x in word_array if pattern.search(x) == None]
         return stripped_array
 
     @staticmethod
@@ -39,7 +41,11 @@ class Parser():
     @staticmethod
     def convert_returns(word_array):
         pattern = re.compile(r'\n')
-        stripped_array = [x.replace('\n', '') for x in word_array if pattern.findall(x)]
+        stripped_array = []
+        for word in word_array:
+            if(pattern.search(word)):
+                word = word.replace('\n', '')
+            stripped_array.append(word)
         return stripped_array
 
     @staticmethod
@@ -49,6 +55,11 @@ class Parser():
             string += x +" "
         string = string[:-1]
         return string
+
+    @staticmethod
+    def lower(word_array):
+        lowered_array = [ x for x in word_array if x.lower()]
+        return lowered_array
 
 
     @staticmethod
@@ -63,7 +74,8 @@ class Parser():
         tweet_str = Parser.strip_tags(tweet_str)
         tweet_str = Parser.strip_re(tweet_str)
         tweet_str = Parser.strip_dead(tweet_str)
+        tweet_str = Parser.lower(tweet_str)
         tweet_str = Parser.strip_amp(tweet_str)
-        #tweet_str = Parser.convert_returns(tweet_str)
+        tweet_str = Parser.convert_returns(tweet_str)
         return tweet_str
 

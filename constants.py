@@ -6,6 +6,11 @@ class Constants():
     def pageNum():
         return "Number of Pages: "
 
+
+    @staticmethod
+    def funcname(parameter_list):
+        pass
+
 class Auth():
 
     @staticmethod
@@ -23,3 +28,4 @@ class Auth():
     @staticmethod
     def access_secret():
         return "gKjelkaZIRSXy2YxIVItzS1c56s3vbpDCElOo5bPiS2cL"
+

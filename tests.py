@@ -20,15 +20,41 @@ class BaseCase(unittest.TestCase):
             s.split(2)
 
 
-class TestParserToString(BaseCase):
+class TestParser(BaseCase):
 
-    string_to_convert = "This is a test String"
-    p.p("string", string_to_convert)
-    word_array = Parser.run(string_to_convert)
-    p.p("word", word_array)
-    converted_string = Parser.toString(word_array)
-    p.p("done", converted_string)
-    assert(string_to_convert == converted_string)
+    def testToString(self):
+        string_to_convert = "This is a test String"
+        p.p("string", string_to_convert)
+        word_array = Parser.run(string_to_convert)
+        p.p("word", word_array)
+        converted_string = Parser.toString(word_array)
+        p.p("done", converted_string)
+        assert(string_to_convert == converted_string)
+
+    def testStripHTTPS(self):
+        word_array_to_strip = ['https://t.co/6iY8tDmpkd|SOHU', 'IS', 'ICO', 'SOLUTION', 'AGENCY.\n💝💝💝#Airdrop', 'Now!!\nUse', 'my', 'referral', 'link:https://t.co/WEtRtbCSKc…', 'https://t.co/XZDiAyaDqM']
+        p.p("Inital Word area: ", word_array_to_strip)
+        stripped = Parser.strip_https(word_array_to_strip)
+        p.p("Stripped Array: ", stripped)
+        for word in stripped:
+            assert(word.startswith('https') == False)
+
+    def testA(self):
+        import re
+        pattern = re.compile(r'https')
+        string_array = ['https://t.co/6iY8tDmpkd|SOHU', 'Random']
+        stripped = [x for x in string_array if pattern.search(x) == None]
+        print (stripped)
+    
+    def testConvertReturns(self):
+        word_array_to_strip = ['AGENCY.\n💝💝💝#Airdrop', 'Now!!\nUse', 'my', 'referral', 'link:https://t.co/WEtRtbCSKc…', 'https://t.co/XZDiAyaDqM']
+        p.p("Inital Word array: ", word_array_to_strip)
+        stripped = Parser.convert_returns(word_array_to_strip)
+        p.p("Stripped Array: ", stripped)
+
+    def test_lower(self):
+        word_array = ['AGENCY.\n💝💝💝#Airdrop', 'Now!!\nUse', 'my', 'referral', 'link:https://t.co/WEtRtbCSKc…', 'https://t.co/XZDiAyaDqM']   
+        p.p("Lowered Array: ", Parser.lower(word_array))
 
 
 if __name__ == '__main__':
