@@ -53,8 +53,36 @@ class TestParser(BaseCase):
         p.p("Stripped Array: ", stripped)
 
     def test_lower(self):
-        word_array = ['AGENCY.\n💝💝💝#Airdrop', 'Now!!\nUse', 'my', 'referral', 'link:https://t.co/WEtRtbCSKc…', 'https://t.co/XZDiAyaDqM']   
-        p.p("Lowered Array: ", Parser.lower(word_array))
+        test = "RT @kubernan: Healthcare Industry &amp; #Blockchain | CloudExpo #FinTech #Ethrereum #Bitcoin https://t.co/vLM2tdaMm2 #Cloud"
+        tweet_str = Parser.tokenize(test)
+        print(tweet_str)
+        tweet_str = Parser.strip_https(tweet_str)
+        print(tweet_str)
+        tweet_str = Parser.strip_mentions(tweet_str)
+        print(tweet_str)
+        tweet_str = Parser.strip_tags(tweet_str)
+        print(tweet_str)
+        tweet_str = Parser.strip_re(tweet_str)
+        tweet_str = Parser.strip_dead(tweet_str)
+        tweet_str = Parser.strip_amp(tweet_str)
+        tweet_str = Parser.lower(tweet_str)
+        
+        #tweet_str = Parser.convert_returns(tweet_str)
+        print(tweet_str)
+
+    def test_strip_tags(self):
+        test = "RT @kubernan: Healthcare Industry &amp; #Blockchain | CloudExpo #FinTech #Ethrereum #Bitcoin https://t.co/vLM2tdaMm2 #Cloud"
+        tweet_str = Parser.tokenize(test)
+        #tweet_str = Parser.strip_https(tweet_str)
+        #tweet_str = Parser.strip_mentions(tweet_str)
+        print(tweet_str)
+        tweet_str = Parser.strip_tags(tweet_str)
+        #tweet_str = Parser.strip_re(tweet_str)
+        #tweet_str = Parser.strip_dead(tweet_str)
+        #tweet_str = Parser.lower(tweet_str)
+        #tweet_str = Parser.strip_amp(tweet_str)
+        #tweet_str = Parser.convert_returns(tweet_str)
+        print(tweet_str)
 
 
 if __name__ == '__main__':

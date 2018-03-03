@@ -15,8 +15,8 @@ class Parser():
 
     @staticmethod
     def strip_tags(word_array):
-        stripped_array = [x.replace('#', '') for x in word_array if x.startswith('#') == False]
-        return stripped_array
+        search = r'#'
+        return Parser.replace(word_array, search, '')
     
     @staticmethod
     def strip_mentions(word_array):
@@ -39,14 +39,19 @@ class Parser():
         return stripped_array
 
     @staticmethod
-    def convert_returns(word_array):
-        pattern = re.compile(r'\n')
+    def replace(word_array, pattern, replace):
+        p = re.compile(pattern)
         stripped_array = []
         for word in word_array:
-            if(pattern.search(word)):
-                word = word.replace('\n', '')
+            if(p.search(word)):
+                word = word.replace(pattern, replace)
             stripped_array.append(word)
         return stripped_array
+
+    @staticmethod
+    def convert_returns(word_array):
+        search = r'\n'
+        return Parser.replace(word_array, search, '')
 
     @staticmethod
     def toString(word_array):
@@ -58,7 +63,7 @@ class Parser():
 
     @staticmethod
     def lower(word_array):
-        lowered_array = [ x for x in word_array if x.lower()]
+        lowered_array = [ x.lower() for x in word_array]
         return lowered_array
 
 

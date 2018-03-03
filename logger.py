@@ -16,5 +16,5 @@ class TestLogger(Logger):
 class ApplicationLogger(Logger):
     
     @staticmethod
-    def debug(string):
-        print (string)
+    def p(func_name, to_convert):
+        print ("{}: \n {}".format(func_name, to_convert))
