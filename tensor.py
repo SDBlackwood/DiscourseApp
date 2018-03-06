@@ -27,7 +27,7 @@ class Tensor():
 
     data_index = 0
         # Step 2: Build the dictionary and replace rare words with UNK token.
-    vocabulary_size = 50000
+    vocabulary_size = 1000000
     
     FLAGS = object
     init = object
@@ -53,12 +53,12 @@ class Tensor():
   
     # Pass in a list of words in an array and the number of words are vocalb has
     def build_dataset(self, words):
-        n_words = self.vocabulary_size
         """Process raw inputs into a dataset."""
         count = [['UNK', -1]] 
         # Basically add all the top used words from the word array 
-        count.extend(collections.Counter(words).most_common(n_words - 1))
+        count.extend(collections.Counter(words).most_common(self.vocabulary_size - 1))
         dictionary = dict()
+        print (count)
         for word, _ in count:
             # For each str, make an entry into the dictionary and asign it a number
             # e.g ['word'] : 1
@@ -69,8 +69,11 @@ class Tensor():
             index = dictionary.get(word, 0)
             if index == 0:  # dictionary['UNK']
                 unk_count += 1
+                print (unk_count)
             data.append(index)
         count[0][1] = unk_count
+        print (dictionary.values())
+        print (dictionary.keys())
         reversed_dictionary = dict(zip(dictionary.values(), dictionary.keys()))
         return data, count, dictionary, reversed_dictionary
 
