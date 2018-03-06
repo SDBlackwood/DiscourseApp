@@ -1,6 +1,7 @@
 #!/usr/bin/python3.5.2
 #import pandas as pd
 import re
+import numpy
 
 #~ Technical parsing outwith semantic analysis
 
@@ -60,6 +61,17 @@ class Parser():
             string += x +" "
         string = string[:-1]
         return string
+
+    @staticmethod
+    def concatArray(word_array_array):
+        # [['Another'],['Words']]
+        '''Pass a array '''
+        concat_array = []
+        for array in word_array_array:
+            concat_array.extend(array)
+        return concat_array
+
+        
 
     @staticmethod
     def lower(word_array):

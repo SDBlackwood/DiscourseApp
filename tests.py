@@ -19,6 +19,12 @@ class BaseCase(unittest.TestCase):
         with self.assertRaises(TypeError):
             s.split(2)
 
+class TestTensor(BaseCase):
+
+    def testTensor(self):
+        
+        pass
+
 
 class TestParser(BaseCase):
 
@@ -83,6 +89,17 @@ class TestParser(BaseCase):
         #tweet_str = Parser.strip_amp(tweet_str)
         #tweet_str = Parser.convert_returns(tweet_str)
         print(tweet_str)
+
+    def test_concat_array(self):
+        test_string_1 = ['This', 'is','the','first', 'string']
+        test_string_2 = ['This', 'could','be','first', 'thing']
+        string_array = []
+        string_array.append(test_string_1)
+        string_array.append(test_string_2)
+        print (string_array)
+        new_array = Parser.concatArray(string_array)
+        print (new_array)
+        assert(new_array == ['This', 'is','the','first', 'string','This', 'could','be','first', 'thing'])
 
 
 if __name__ == '__main__':
