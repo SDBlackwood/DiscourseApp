@@ -1,4 +1,3 @@
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -11,11 +10,15 @@ import argparse
 import random
 from tempfile import gettempdir
 import zipfile
-
+import traceback
+import sys
+import pprint as p
+import matplotlib.pyplot as plt
 import numpy as np
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
+from sklearn.manifold import TSNE
 
 from tensorflow.contrib.tensorboard.plugins import projector
 
@@ -27,17 +30,18 @@ class Tensor():
 
     data_index = 0
         # Step 2: Build the dictionary and replace rare words with UNK token.
-    vocabulary_size = 1000000
+    vocabulary_size = 1000
     
     FLAGS = object
     init = object
+    num_steps = 0
 
 
-    def __init__(self):
+    def __init__(self,num_steps):
         # Give a folder path as an argument with '--log_dir' to save
         # TensorBoard summaries. Default is a log folder in current directory.
         current_path = os.path.dirname(os.path.realpath(sys.argv[0]))
-
+        self.num_steps = num_steps
         parser = argparse.ArgumentParser()
         parser.add_argument(
                                 '--log_dir',
@@ -59,18 +63,22 @@ class Tensor():
         count.extend(collections.Counter(words).most_common(self.vocabulary_size - 1))
         dictionary = dict()
         print (count)
+
         for word, _ in count:
             # For each str, make an entry into the dictionary and asign it a number
             # e.g ['word'] : 1
             dictionary[word] = len(dictionary)
+
         data = list()
         unk_count = 0
+
         for word in words:
             index = dictionary.get(word, 0)
             if index == 0:  # dictionary['UNK']
                 unk_count += 1
                 print (unk_count)
             data.append(index)
+            
         count[0][1] = unk_count
         print (dictionary.values())
         print (dictionary.keys())
@@ -102,19 +110,22 @@ class Tensor():
         self.data_index = (self.data_index + data_len - span) % len(data)
         return batch, labels
     
+
+
     def model(self, bag):
+        # Build dataset
         data, count, dictionary, reverse_dictionary = self.build_dataset(bag)
-        data_len = len(data)
+        data_len = len(reverse_dictionary)-1
         print('Most common words (+UNK)', count[:5])
         print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 
-
+        # Generate Batches
         batch, labels = self.generate_batch(data, data_len, batch_size=8, num_skips=2, skip_window=1)
         for i in range(8):
             print(batch[i], reverse_dictionary[batch[i]], '->', labels[i, 0],
                 reverse_dictionary[labels[i, 0]])
-        # Step 4: Build and train a skip-gram model.
 
+        # Step 4: Build and train a skip-gram model.
         batch_size = 128
         embedding_size = 128  # Dimension of the embedding vector.
         skip_window = 1  # How many words to consider left and right.
@@ -129,14 +140,10 @@ class Tensor():
         valid_window = 100  # Only pick dev samples in the head of the distribution.
         valid_examples = np.random.choice(valid_window, valid_size, replace=False)
 
-        # data, count, dictionary, reverse_dictionary = self.build_dataset(words)
-        # print('Most common words (+UNK)', count[:5])
-        # print('Sample data', data[:10], [reverse_dictionary[i] for i in data[:10]])
 
         graph = tf.Graph()
-
         with graph.as_default():
-            
+
             # Input data.
             with tf.name_scope('inputs'):
                 train_inputs = tf.placeholder(tf.int32, shape=[batch_size])
@@ -164,7 +171,7 @@ class Tensor():
             # tf.nce_loss automatically draws a new sample of the negative labels each
             # time we evaluate the loss.
             # Explanation of the meaning of NCE loss:
-            #   http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
+            # http://mccormickml.com/2016/04/19/word2vec-tutorial-the-skip-gram-model/
             with tf.name_scope('loss'):
                 loss = tf.reduce_mean(
                     tf.nn.nce_loss(
@@ -200,7 +207,8 @@ class Tensor():
             saver = tf.train.Saver()
 
         # Step 5: Begin training.
-        num_steps = 100001
+        
+
 
         with tf.Session(graph=graph) as session:
             # Open a writer to write summaries.
@@ -211,7 +219,7 @@ class Tensor():
             print('Initialized')
 
             average_loss = 0
-            for step in xrange(num_steps):
+            for step in xrange(self.num_steps):
                 batch_inputs, batch_labels = self.generate_batch(data, data_len,batch_size, num_skips, skip_window)
                 feed_dict = {train_inputs: batch_inputs, train_labels: batch_labels}
 
@@ -231,7 +239,7 @@ class Tensor():
                 # Add returned summaries to writer in each step.
                 writer.add_summary(summary, step)
                 # Add metadata to visualize the graph for the last run.
-                if step == (num_steps - 1):
+                if step == (self.num_steps - 1):
                     writer.add_run_metadata(run_metadata, 'step%d' % step)
 
                 if step % 2000 == 0:
@@ -242,22 +250,23 @@ class Tensor():
                     average_loss = 0
 
                 # Note that this is expensive (~20% slowdown if computed every 500 steps)
-                if step % 10000 == 0:
-                    sim = similarity.eval()
-                for i in xrange(valid_size):
-                    valid_word = reverse_dictionary[valid_examples[i]]
-                    top_k = 8  # number of nearest neighbors
-                    nearest = (-sim[i, :]).argsort()[1:top_k + 1]
-                    log_str = 'Nearest to %s:' % valid_word
-                    for k in xrange(top_k):
-                        close_word = reverse_dictionary[nearest[k]]
-                        log_str = '%s %s,' % (log_str, close_word)
-                    print(log_str)
+                #if step % 1000 == 0:
+                #    sim = similarity.eval()
+                #for i in xrange(valid_size):
+                #    valid_word = reverse_dictionary[valid_examples[i]]
+                #    top_k = 8  # number of nearest neighbors
+                #    nearest = (-sim[i, :]).argsort()[1:top_k + 1]
+                #    log_str = 'Nearest to %s:' % valid_word
+                #    for k in xrange(top_k): 
+                #        close_word = reverse_dictionary[nearest[k]]         
+                #        close_word = reverse_dictionary[nearest[k]]         
+                #        log_str = '%s %s,' % (log_str, close_word)
+                #    print(log_str)
             final_embeddings = normalized_embeddings.eval()
 
             # Write corresponding labels for the embeddings.
             with open(self.FLAGS.log_dir + '/metadata.tsv', 'w') as f:
-                for i in xrange(data_len):
+                for i in xrange(len(reverse_dictionary)-1):
                     f.write(reverse_dictionary[i] + '\n')
 
             # Save the model for checkpoints.
@@ -270,11 +279,39 @@ class Tensor():
             embedding_conf.metadata_path = os.path.join(self.FLAGS.log_dir, 'metadata.tsv')
             projector.visualize_embeddings(writer, config)
 
-        writer.close()
+            
 
-    
+        writer.close()
+# Step 6: Visualize the embeddings.
+
+        def plot_with_labels(low_dim_embs, labels, filename):
+            assert low_dim_embs.shape[0] >= len(labels), 'More labels than embeddings'
+            plt.figure(figsize=(18, 18))  # in inches
+            for i, label in enumerate(labels):
+                x, y = low_dim_embs[i, :]
+                plt.scatter(x, y)
+                plt.annotate(
+                    label,
+                    xy=(x, y),
+                    xytext=(5, 2),
+                    textcoords='offset points',
+                    ha='right',
+                    va='bottom')#
+
+            plt.savefig(filename)
+
+
+        # Dimensionality Reduction
+        tsne = TSNE(
+        perplexity=30, n_components=2, init='pca', n_iter=5000, method='exact')
+        plot_only = 100
+        low_dim_embs = tsne.fit_transform(final_embeddings[:plot_only, :])
+        labels = [reverse_dictionary[i] for i in xrange(plot_only)]
+        plot_with_labels(low_dim_embs, labels, os.path.join(gettempdir(), 'tsne.png'))
+
     def run(self, bag):
         self.model(bag)
+        plt.show()
  
 
     
