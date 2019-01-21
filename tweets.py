@@ -2,7 +2,7 @@
 
 import tweepy
 from tweepy.auth import OAuthHandler
-from constants import Auth
+from my_constants import Auth
 import json
 
 # Twitter access keys 

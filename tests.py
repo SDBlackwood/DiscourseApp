@@ -2,6 +2,9 @@
 import unittest
 from parser import Parser
 from logger import TestLogger as p
+from reddit import Reddit
+from pymongo import MongoClient
+from db import Mongo
 
 class BaseCase(unittest.TestCase):
 
@@ -100,6 +103,50 @@ class TestParser(BaseCase):
         new_array = Parser.concatArray(string_array)
         print (new_array)
         assert(new_array == ['This', 'is','the','first', 'string','This', 'could','be','first', 'thing'])
+
+
+class TestReddit(BaseCase):
+   
+
+    def test_reddit(self):
+        #instantiate a reddit instance
+        reddit = Reddit()
+    
+    def test_set_sub(self):
+        reddit = Reddit()
+        reddit.set_sub("worldnews")
+        assert(reddit.sub=="worldnews")
+    
+    def get_top_ids(self):
+        reddit = Reddit()
+        result = reddit.get_top_ids()
+        assert(type(result)==list)
+        print (result)
+    
+class TestMongo(BaseCase):
+    def test_connect(self):
+        mongo = Mongo()
+        print (mongo.db)
+    def test_put_ids(self): 
+        # set up the scenaior
+        Mongo().put_ids(ids)
+    def test_put_ids_same(self):
+        mongo = Mongo()
+        mongo.db.ids.insert_one({"reddit_id":"aisb0hc"})
+        ids = ["aisb0hc"]
+        mongo.put_ids(ids)
+        ids = ["aisb0hc","jshshfdif"]
+        mongo.put_ids(ids)
+        result = mongo.get_ids()
+        assert(result==ids)
+        mongo.db.ids.delete_one({"reddit_id":"aisb0hc"})
+        mongo.db.ids.delete_one({"reddit_id":"jshshfdif"})
+
+    def test_get_ids(self):
+        for a in Mongo().get_ids():
+            print (a)
+    
+
 
 
 if __name__ == '__main__':
