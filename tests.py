@@ -139,22 +139,21 @@ class TestMongo(BaseCase):
         Mongo().put_ids(ids)
 
     def test_put_ids_same(self):
-        mongo = Mongo()
+        mongo = Mongo(env="Test")
         mongo.db.ids.insert_one({"reddit_id":"aisb0hc"})
         ids = ["aisb0hc"]
         mongo.put_ids(ids)
-        print (mongo.get_ids())
-        print (ids)
-        assert(mongo.get_ids(),ids)
+        assert(mongo.get_ids()==ids)
         ids = ["aisb0hc","jshshfdif"]
         mongo.put_ids(ids)
         result = mongo.get_ids()
-        assert(result,ids)
+        assert(result==ids)
         mongo.db.ids.delete_one({"reddit_id":"aisb0hc"})
         mongo.db.ids.delete_one({"reddit_id":"jshshfdif"})
+        assert(mongo.get_ids()==[])
 
     def test_get_ids(self):
-        for a in Mongo().get_ids():
+        for a in Mongo().get_ids():t
             print (a)
     
 
