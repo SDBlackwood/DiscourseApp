@@ -1,14 +1,23 @@
 from pymongo import MongoClient
+from pymongo import ASCENDING
 from parser import Parser
 from logger import TestLogger as p
 from reddit import Reddit
 
 class Mongo():
 
-    def __init__(self):
+    def __init__(self, env):
         client = MongoClient('localhost', 27017)
-        self.db = client.reddit
-        self.ids = self.db.ids
+        if env:
+            self.db = client.test
+            self.ids = self.db.ids
+        else:
+            self.db = client.reddit
+            self.ids = self.db.ids
+        
+        ## creates a unique index on the reddit_id
+        ## to stop duplicates at the db level
+        result = self.db.profiles.create_index([('reddit_id', ASCENDING)],unique=True)
     
     def put_ids(self, new_ids):
         ## get all the ids and put them in a set
