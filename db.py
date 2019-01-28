@@ -6,7 +6,7 @@ from reddit import Reddit
 
 class Mongo():
 
-    def __init__(self, env):
+    def __init__(self, env=None):
         client = MongoClient('localhost', 27017)
         if env:
             self.db = client.test
@@ -17,7 +17,7 @@ class Mongo():
         
         ## creates a unique index on the reddit_id
         ## to stop duplicates at the db level
-        result = self.db.profiles.create_index([('reddit_id', ASCENDING)],unique=True)
+        result = self.ids.create_index([('reddit_id', ASCENDING)],unique=True)
     
     def put_ids(self, new_ids):
         ## get all the ids and put them in a set
