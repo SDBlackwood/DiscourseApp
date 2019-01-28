@@ -1,0 +1,8 @@
+{
+    "DB":
+        {
+            "prod":"reddit",
+            "test":"test"
+        }
+    
+}

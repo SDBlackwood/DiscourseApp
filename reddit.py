@@ -24,11 +24,11 @@ class Reddit():
         """
         self.sub = sub
 
-    def get_top_ids(self):
+    def get_top_ids(self, num=25):
         """
         return [str] ids
         """
-        top = self.reddit.subreddit(self.sub).hot(limit=25)
+        top = self.reddit.subreddit(self.sub).hot(limit=num)
         ids = []
         for submission in top:
             ids.append(submission.id)
