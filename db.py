@@ -15,16 +15,17 @@ class Mongo():
             self.db = client.reddit
             self.ids = self.db.ids
         
-        ## creates a unique index on the reddit_id
-        ## to stop duplicates at the db level
-        result = self.ids.create_index([('reddit_id', ASCENDING)],unique=True)
+        
     
     def put_ids(self, new_ids):
         ## get all the ids and put them in a set
         current_ids = self.get_ids()
         ids = Mongo.diff(new_ids,current_ids)
         for id in ids:
-            self.ids.insert_one({"reddit_id":id})
+            try:
+                self.ids.insert_one({"reddit_id":id})
+            except pymongo.errors.DuplicateKeyError:
+                "Duplicate rejected" 
     
     def get_ids(self):
         '''

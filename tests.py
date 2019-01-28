@@ -153,7 +153,7 @@ class TestMongo(BaseCase):
         assert(mongo.get_ids()==[])
 
     def test_get_ids(self):
-        for a in Mongo().get_ids():t
+        for a in Mongo().get_ids():
             print (a)
     
 
